@@ -1,0 +1,86 @@
+.tourist-chart {
+  width: 100%;
+  border-radius: var(--radius-large);
+  color: var(--color-white);
+}
+
+.tourist-chart__container {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  min-height: 400px;
+}
+
+.tourist-chart__loading,
+.tourist-chart__error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  font-size: var(--font-size-base);
+  color: var(--color-white-15);
+  background-color: var(--color-white-15);
+  border-radius: var(--radius-large);
+  border: 1px dashed var(--color-white-15);
+}
+
+.tourist-chart__error {
+  color: var(--color-error);
+}
+
+.tourist-chart__selected-years {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background-color: var(--color-white-15);
+  border-radius: var(--radius-large);
+  border-left: 4px solid var(--color-white-15);
+  font-size: var(--font-size-sm);
+  color: var(--color-white);
+}
+
+.tourist-chart__selected-year {
+  display: inline-block;
+  margin-left: var(--spacing-xs);
+  padding: 4px 10px;
+  background-color: var(--color-white-15);
+  color: var(--color-white);
+  border-radius: var(--radius-large);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border: 1px solid var(--color-white-15);
+}
+
+@media (max-width: 768px) {
+  .tourist-chart {
+    padding: var(--spacing-md);
+    margin: 0 -var(--spacing-xs);
+  }
+  
+  .tourist-chart__container {
+    height: 400px;
+    min-height: 350px;
+  }
+  
+  .tourist-chart__selected-years {
+    font-size: 13px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tourist-chart {
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-small);
+  }
+  
+  .tourist-chart__container {
+    height: 350px;
+    min-height: 300px;
+  }
+  
+  .tourist-chart__loading,
+  .tourist-chart__error {
+    height: 300px;
+    font-size: var(--font-size-sm);
+  }
+} 

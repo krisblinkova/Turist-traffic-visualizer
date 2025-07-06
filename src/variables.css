@@ -1,0 +1,39 @@
+/* CSS переменные для приложения туристских данных */
+:root {
+  /* Основные цвета */
+  --color-white: #FFFFFF;
+  --color-blue: #0a0a81;
+  --color-text-dark: #333;
+  --color-error: #ff6b6b;
+  --color-light-blue: #0b93c9;
+  
+  /* Полупрозрачные цвета */
+  --color-white-15: rgba(255, 255, 255, 0.15);
+  
+  /* Тени */
+  --shadow-main: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow-focus: 0 0 0 2px rgba(255, 255, 255, 0.3);
+  
+  /* Скругления */
+  --radius-small: 4px;
+  --radius-medium: 8px;
+  --radius-large: 12px;
+  
+  /* Отступы */
+  --spacing-xs: 8px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 40px;
+  
+  /* Размеры шрифтов */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-md: 1.5rem;     /* 24px */
+  --font-size-lg: 2rem;       /* 32px */
+  
+  /* Веса шрифтов */
+  --font-weight-medium: 500;
+  
+  /* Переходы */
+  --transition-all: all 0.2s ease;
+} 
