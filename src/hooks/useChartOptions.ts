@@ -2,9 +2,28 @@ import { useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { toggleSelectedYear } from '../store/filtersSlice';
 import { formatNumber, formatPercent } from '../utils/chartUtils';
+import { ChartEvent } from 'chart.js';
+
+interface ChartDataset {
+  label: string;
+  data: number[];
+  type?: 'bar' | 'line';
+}
+
+interface CombinedChartData {
+  labels: string[];
+  datasets: ChartDataset[];
+}
 
 interface UseChartOptionsProps {
-  combinedData: any;
+  combinedData: CombinedChartData | null;
+}
+
+interface TooltipContext {
+  dataset: ChartDataset;
+  parsed: {
+    y: number;
+  };
 }
 
 export const useChartOptions = ({ combinedData }: UseChartOptionsProps) => {
@@ -53,7 +72,7 @@ export const useChartOptions = ({ combinedData }: UseChartOptionsProps) => {
       },
       tooltip: {
         callbacks: {
-          label: function(context: any) {
+          label: function(context: TooltipContext) {
             const label = context.dataset.label || '';
             const value = context.parsed.y;
             
@@ -103,23 +122,28 @@ export const useChartOptions = ({ combinedData }: UseChartOptionsProps) => {
         },
         ticks: {
           color: '#FFD700',
-          callback: function(value: any) {
+          callback: function(value: number) {
             return value + '%';
           }
         }
       },
     },
-    onClick: (event: any, elements: any[]) => {
+    onClick: (event: ChartEvent, elements: any[]) => {
+      if (!event.native || !combinedData?.labels) return;
+      
       if (elements.length > 0) {
         const element = elements[0];
-        const year = parseInt(combinedData?.labels?.[element.index] as string);
-        if (year) {
+        const year = parseInt(combinedData.labels[element.index]);
+        if (!isNaN(year)) {
           dispatch(toggleSelectedYear(year));
         }
       }
     },
-    onHover: (event: any, elements: any[]) => {
-      event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+    onHover: (event: ChartEvent, elements: any[]) => {
+      const target = event.native?.target as HTMLCanvasElement | null;
+      if (target) {
+        target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+      }
     }
   }), [childrenMode, combinedData?.labels, dispatch]);
 

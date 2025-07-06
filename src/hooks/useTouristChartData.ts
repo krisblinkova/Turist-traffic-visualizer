@@ -2,44 +2,78 @@ import { useMemo } from 'react';
 import { useAppSelector } from '../store/hooks';
 import { prepareBarChartData, prepareLineChartData } from '../utils/chartUtils';
 
-// Константы для диапазона лет детского режима
-const CHILDREN_MODE_START_YEAR = 2017;
-const CHILDREN_MODE_END_YEAR = 2022;
+// Утилитарная функция для фильтрации данных по годам
+const filterDataByYears = <T extends { year: number }>(
+  data: T[], 
+  childrenMode: boolean,
+  selectedYears: number[]
+): T[] => {
+  let filteredData = [...data];
 
-// Утилитарная функция для фильтрации данных по годам детского режима
-const filterDataByYears = <T extends { year: number }>(data: T[], childrenMode: boolean): T[] => {
-  if (childrenMode) {
-    return data.filter(item => item.year >= CHILDREN_MODE_START_YEAR && item.year <= CHILDREN_MODE_END_YEAR);
+  // Если есть выбранные годы, фильтруем по ним
+  if (selectedYears.length > 0) {
+    filteredData = filteredData.filter(item => selectedYears.includes(item.year));
   }
-  return data;
+
+  return filteredData;
 };
 
-export const useTouristChartData = () => {
+interface ChartDataset {
+  label: string;
+  data: number[];
+  backgroundColor: string | string[];
+  borderColor: string | string[];
+  borderWidth: number;
+  type?: 'bar' | 'line';
+  yAxisID?: string;
+  order?: number;
+  pointBackgroundColor?: string;
+  pointBorderColor?: string;
+  pointRadius?: number;
+  tension?: number;
+}
+
+interface CombinedChartData {
+  labels: string[];
+  datasets: ChartDataset[];
+  }
+
+interface ChartHookResult {
+  loading: boolean;
+  totalFlow: number;
+  combinedData: CombinedChartData | null;
+}
+
+export const useTouristChartData = (): ChartHookResult => {
   const { rawData, calculatedMetrics, loading } = useAppSelector(state => state.touristData);
   const { selectedCategory, childrenMode, selectedYears } = useAppSelector(state => state.filters);
 
-  // Фильтрация данных для режима детей (2017-2022)
+  // Фильтрация данных
   const filteredData = useMemo(() => 
-    filterDataByYears(rawData, childrenMode), 
-    [rawData, childrenMode]
+    filterDataByYears(rawData, childrenMode, selectedYears), 
+    [rawData, childrenMode, selectedYears]
   );
 
   const filteredMetrics = useMemo(() => 
-    filterDataByYears(calculatedMetrics, childrenMode), 
-    [calculatedMetrics, childrenMode]
+    filterDataByYears(calculatedMetrics, childrenMode, selectedYears), 
+    [calculatedMetrics, childrenMode, selectedYears]
   );
 
   // Вычисление общего потока за последний год
   const totalFlow = useMemo(() => {
     if (!filteredData.length) return 0;
     const lastYear = filteredData[filteredData.length - 1];
+    if (!lastYear) return 0;
+    
     if (childrenMode) {
-      return lastYear.children_total;
+      return lastYear.children_total || 0;
     }
-    return lastYear.citizens_rf + lastYear.citizens_near_abroad + lastYear.citizens_far_abroad;
+    return (lastYear.citizens_rf || 0) + 
+           (lastYear.citizens_near_abroad || 0) + 
+           (lastYear.citizens_far_abroad || 0);
   }, [filteredData, childrenMode]);
 
-  // Прямое создание объединенных данных без промежуточных переменных
+  // Создание объединенных данных для графика
   const combinedData = useMemo(() => {
     if (!filteredData.length || !filteredMetrics.length) return null;
     

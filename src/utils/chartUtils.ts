@@ -35,16 +35,18 @@ export const getDataByCategory = (
 ): number[] => {
   if (category === 'all') {
     return data.map(item => 
-      item.citizens_rf + item.citizens_near_abroad + item.citizens_far_abroad
+      (item.citizens_rf || 0) + 
+      (item.citizens_near_abroad || 0) + 
+      (item.citizens_far_abroad || 0)
     );
   }
   
-  return data.map(item => item[category]);
+  return data.map(item => item[category] || 0);
 };
 
 // Функция для получения данных детей
 export const getChildrenData = (data: TouristFlowData[]): number[] => {
-  return data.map(item => item.children_total);
+  return data.map(item => item.children_total || 0);
 };
 
 // Функция для получения CAGR по категории
@@ -53,15 +55,15 @@ export const getCAGRByCategory = (
   category: TouristCategory
 ): number[] => {
   if (category === 'all') {
-    return metrics.map(item => item.cagr_total);
+    return metrics.map(item => item.cagr_total || 0);
   }
   
-  return metrics.map(item => item.cagr_by_category[category]);
+  return metrics.map(item => (item.cagr_by_category?.[category] || 0));
 };
 
 // Функция для получения CAGR для детей
 export const getChildrenCAGR = (metrics: CalculatedMetrics[]): number[] => {
-  return metrics.map(item => item.cagr_children);
+  return metrics.map(item => item.cagr_children || 0);
 };
 
 // Функция для подготовки данных столбчатой диаграммы
@@ -74,6 +76,7 @@ export const prepareBarChartData = (
   const years = data.map(item => item.year.toString());
   
   if (childrenMode) {
+    console.log(getChildrenData(data));
     return {
       labels: years,
       datasets: [{
@@ -81,7 +84,7 @@ export const prepareBarChartData = (
         data: getChildrenData(data),
         backgroundColor: createColorArray(CATEGORY_COLORS.children, years, selectedYears),
         borderColor: createColorArray(CATEGORY_COLORS.children, years, selectedYears),
-        borderWidth: 0
+        borderWidth: 1
       }]
     };
   }
@@ -92,24 +95,24 @@ export const prepareBarChartData = (
       datasets: [
         {
           label: 'Граждане РФ',
-          data: data.map(item => item.citizens_rf),
+          data: data.map(item => item.citizens_rf || 0),
           backgroundColor: createColorArray(CATEGORY_COLORS.citizens_rf, years, selectedYears),
           borderColor: createColorArray(CATEGORY_COLORS.citizens_rf, years, selectedYears),
-          borderWidth: 0
+          borderWidth: 1
         },
         {
           label: 'Граждане стран ближнего зарубежья',
-          data: data.map(item => item.citizens_near_abroad),
+          data: data.map(item => item.citizens_near_abroad || 0),
           backgroundColor: createColorArray(CATEGORY_COLORS.citizens_near_abroad, years, selectedYears),
           borderColor: createColorArray(CATEGORY_COLORS.citizens_near_abroad, years, selectedYears),
-          borderWidth: 0
+          borderWidth: 1
         },
         {
           label: 'Граждане стран дальнего зарубежья',
-          data: data.map(item => item.citizens_far_abroad),
+          data: data.map(item => item.citizens_far_abroad || 0),
           backgroundColor: createColorArray(CATEGORY_COLORS.citizens_far_abroad, years, selectedYears),
           borderColor: createColorArray(CATEGORY_COLORS.citizens_far_abroad, years, selectedYears),
-          borderWidth: 0
+          borderWidth: 1
         }
       ]
     };
@@ -131,7 +134,7 @@ export const prepareBarChartData = (
       data: getDataByCategory(data, category),
       backgroundColor: createColorArray(baseColor, years, selectedYears),
       borderColor: createColorArray(baseColor, years, selectedYears),
-      borderWidth: 0
+      borderWidth: 1
     }]
   };
 };
@@ -153,10 +156,10 @@ export const prepareLineChartData = (
         data: getChildrenCAGR(metrics),
         borderColor: '#FFD700',
         backgroundColor: 'transparent',
-        borderWidth: 3,
+        borderWidth: 2,
         pointBackgroundColor: '#FFD700',
         pointBorderColor: '#FFD700',
-        pointRadius: 5,
+        pointRadius: 4,
         tension: 0.1
       }]
     };
@@ -169,21 +172,29 @@ export const prepareLineChartData = (
       data: getCAGRByCategory(metrics, category),
       borderColor: '#FFD700',
       backgroundColor: 'transparent',
-      borderWidth: 3,
+      borderWidth: 2,
       pointBackgroundColor: '#FFD700',
       pointBorderColor: '#FFD700',
-      pointRadius: 5,
+      pointRadius: 4,
       tension: 0.1
     }]
   };
 };
 
 // Функция для форматирования чисел
-export const formatNumber = (value: number, decimals: number = 1): string => {
-  return value.toFixed(decimals);
+export const formatNumber = (value: number | null | undefined, decimals: number = 0): string => {
+  if (value === null || value === undefined) return '0';
+  return value.toLocaleString('ru-RU', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
 };
 
 // Функция для форматирования процентов
-export const formatPercent = (value: number, decimals: number = 1): string => {
-  return `${value.toFixed(decimals)}%`;
+export const formatPercent = (value: number | null | undefined, decimals: number = 1): string => {
+  if (value === null || value === undefined) return '0%';
+  return `${(value).toLocaleString('ru-RU', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  })}%`;
 }; 
