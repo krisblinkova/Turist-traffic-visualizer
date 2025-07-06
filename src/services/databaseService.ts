@@ -6,7 +6,7 @@ const NETWORK_DELAYS = {
   METRICS_DATA: 300
 } as const;
 
-// Псевдо-данные, имитирующие SQLite базу данных (защищены от изменений)
+// Псевдо-данные, имитирующие SQLite базу данных 
 const mockTouristData: TouristFlowData[] = [
   {
     year: 2015,
@@ -95,17 +95,16 @@ const calculateMetrics = (data: readonly TouristFlowData[]): CalculatedMetrics[]
   });
 };
 
-// Утилитарная функция для имитации задержки сети
+
 const simulateNetworkDelay = <T>(data: T, delay: number): Promise<T> => {
   return new Promise((resolve) => {
     setTimeout(() => resolve(data), delay);
   });
 };
 
-// Предварительно рассчитанные метрики (вычисляются один раз при инициализации модуля)
+
 const calculatedMetrics = Object.freeze(calculateMetrics(mockTouristData));
 
-// Публичные функции для работы с данными
 
 export const getTouristFlowData = (): Promise<TouristFlowData[]> => {
   return simulateNetworkDelay([...mockTouristData], NETWORK_DELAYS.TOURIST_DATA);
@@ -115,7 +114,6 @@ export const getCalculatedMetrics = (): Promise<CalculatedMetrics[]> => {
   return simulateNetworkDelay([...calculatedMetrics], NETWORK_DELAYS.METRICS_DATA);
 };
 
-// Для обратной совместимости экспортируем объект с теми же методами
 export const databaseService = {
   getTouristFlowData,
   getCalculatedMetrics

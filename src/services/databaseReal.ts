@@ -28,7 +28,6 @@ export const transformToTouristFlow = (data: TouristData[]): TouristFlowData[] =
       };
     }
 
-    // Используем правильные названия категорий и суммируем значения
     switch (curr.category.toLowerCase()) {
       case 'граждане рф':
         acc[curr.year].citizens_rf += curr.value;
@@ -92,7 +91,6 @@ export const parseExcelData = async (): Promise<TouristData[]> => {
       const isChild = row['дети'] === 'да';
       const value = typeof row.count_turist === 'string' ? parseFloat(row.count_turist) : (row.count_turist || 0);
       
-      // Если это детская запись, считаем её отдельной категорией
       const finalCategory = isChild ? 'дети' : category;
       
       return {
@@ -116,37 +114,27 @@ const NETWORK_DELAYS = {
   METRICS_DATA: 300
 } as const;
 
-// Утилитарная функция для имитации задержки сети
+// Функция для имитации задержки сети
 const simulateNetworkDelay = <T>(data: T, delay: number): Promise<T> => {
   return new Promise((resolve) => {
     setTimeout(() => resolve(data), delay);
   });
 };
 
-// Публичные функции для работы с данными
 export const getRealTouristFlowData = async (): Promise<TouristFlowData[]> => {
-  console.log('🔄 getRealTouristFlowData: Начинаем загрузку данных...');
   const rawData = await parseExcelData();
-  console.log('📊 getRealTouristFlowData: Получены сырые данные:', rawData.length, 'записей');
   const transformedData = transformToTouristFlow(rawData);
-  console.log('✅ getRealTouristFlowData: Трансформированные данные:', transformedData);
   return simulateNetworkDelay(transformedData, NETWORK_DELAYS.TOURIST_DATA);
 };
 
 export const getRealCalculatedMetrics = async (): Promise<CalculatedMetrics[]> => {
-  console.log('📈 getRealCalculatedMetrics: Начинаем расчет метрик...');
   const rawData = await parseExcelData();
   const transformedData = transformToTouristFlow(rawData);
   const metrics = calculateMetrics(transformedData);
-  console.log('✅ getRealCalculatedMetrics: Рассчитанные метрики:', metrics);
   return simulateNetworkDelay(metrics, NETWORK_DELAYS.METRICS_DATA);
 };
 
-// Экспорт сервиса
 export const realDatabaseService = {
   getTouristFlowData: getRealTouristFlowData,
   getCalculatedMetrics: getRealCalculatedMetrics
 }; 
-
-
-// Функция для тестирования (запускается только при прямом вызове)
